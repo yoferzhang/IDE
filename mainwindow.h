@@ -17,6 +17,7 @@ private:
     QMenu *help;
 
     QAction *fileOpen;
+    QAction *fileSave;
     QAction *fileExit;
 
     QAction *helpAbout;
@@ -32,6 +33,7 @@ public:
 
 private slots:
     void onOpen();
+    void onSave();
     void onAbout();
     void onExit();
     void onCopy();

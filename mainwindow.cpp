@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include <QMessageBox>
+#include <QFileDialog>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -19,7 +20,12 @@ MainWindow::MainWindow(QWidget *parent)
 
     fileOpen = new QAction("打开", this); // 建立一个Action
     fileOpen->setShortcut(tr("Ctrl+O")); // 将open菜单的快捷方式设置为ctrl+O
+
+    fileSave = new QAction("保存", this);
+    fileSave->setShortcut(tr("Ctrl+S"));
+
     file->addAction(fileOpen); // 将fileOpen这个Action加入到file菜单下面
+    file->addAction(fileSave);
     fileExit = new QAction("退出", this);
     file->addSeparator(); // 加入一个分割符
     file->addAction(fileExit); // 将fileExit这个Action加入到file菜单下面
@@ -45,6 +51,7 @@ MainWindow::MainWindow(QWidget *parent)
     // 第一个参数是触发这个事件控件，第二个参数是对于ACTION来讲，固定写SIGNAL(triggered())
     // 第三个参数固定写this
     // 第四个参数指定点击Action后会执行哪个函数
+    connect(fileSave, SIGNAL(triggered(bool)), this, SLOT(onSave()));
 
     connect(helpAbout, SIGNAL(triggered(bool)), this, SLOT(onAbout()));
     connect(fileExit, SIGNAL(triggered(bool)), this, SLOT(onExit()));
@@ -63,7 +70,45 @@ MainWindow::~MainWindow()
 
 void MainWindow::onOpen()
 {
-    QMessageBox::information(this, "提示", "测试");
+    QString filename = QFileDialog::getOpenFileName(); // 打开一个标准文件对话框
+    // 返回值是用户选择的文件名
+    // 函数返回用户选择的路径+文件名
+    if (filename.isEmpty()) { // 如果用户没有选择任何文件
+        return;
+    }
+    QString content; // QT定义的一个字符串类
+
+    // filename.toStdString().data(); // 将QString转化为const char *
+    FILE *p = fopen(filename.toStdString().data(), "r");
+    if (p == NULL) {
+        QMessageBox::information(this, "错误", "打开文件失败");
+    } else {
+        while (!feof(p)) {
+            char buf[1024] = {0};
+            fgets(buf, sizeof(buf), p);
+            content += buf; // 将buf的内容追加到content的后面
+        }
+        fclose(p);
+        text1->setText(content); // 将QString里的字符串放到text1里面
+    }
+
+    //QMessageBox::information(this, "提示", "测试");
+}
+
+void MainWindow::onSave()
+{
+    QString filename = QFileDialog::getSaveFileName();
+    if (filename.isEmpty()) {
+        return;
+    }
+    FILE *p = fopen(filename.toStdString().data(), "w");
+    if (p == NULL) {
+        QMessageBox::information(this, "错误", "打开文件失败");
+    } else {
+        // text1->toPlainText().toStdString().data()//将用户在text1控件中输入的字符串转化为const char *
+        fputs(text1->toPlainText().toStdString().data(), p);
+        fclose(p);
+    }
 }
 
 void MainWindow::onAbout()
