@@ -11,15 +11,19 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
 private:
+    QString filename;
     QTextEdit *text1;
     QMenu *file;
     QMenu *edit;
+    QMenu *build;
     QMenu *help;
 
     QAction *fileOpen;
     QAction *fileSave;
     QAction *fileExit;
 
+    QAction *buildCompile;
+    QAction *buildRun;
     QAction *helpAbout;
 
     QAction *editCopy;
@@ -40,6 +44,8 @@ private slots:
     void onPaste();
     void onCut();
     void onSelectAll();
+    void onCompile();
+    void onRun();
 };
 
 #endif // MAINWINDOW_H

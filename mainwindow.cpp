@@ -16,6 +16,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     file = this->menuBar()->addMenu("文件"); // 在菜单栏加入一个菜单项
     edit = this->menuBar()->addMenu("编辑"); // 在菜单栏加入一个编辑项
+    build = this->menuBar()->addMenu("构建"); // 在菜单栏加入一个构建项
     help = this->menuBar()->addMenu("帮助"); // 在菜单栏加入一个帮助项
 
     fileOpen = new QAction("打开", this); // 建立一个Action
@@ -29,6 +30,12 @@ MainWindow::MainWindow(QWidget *parent)
     fileExit = new QAction("退出", this);
     file->addSeparator(); // 加入一个分割符
     file->addAction(fileExit); // 将fileExit这个Action加入到file菜单下面
+
+    buildCompile = new QAction("编译", this);
+    build->addAction(buildCompile);
+
+    buildRun = new QAction("运行", this);
+    build->addAction(buildRun);
 
     helpAbout = new QAction("关于", this);
     help->addAction(helpAbout);
@@ -52,6 +59,8 @@ MainWindow::MainWindow(QWidget *parent)
     // 第三个参数固定写this
     // 第四个参数指定点击Action后会执行哪个函数
     connect(fileSave, SIGNAL(triggered(bool)), this, SLOT(onSave()));
+    connect(buildCompile, SIGNAL(triggered(bool)), this, SLOT(onCompile()));
+    connect(buildRun, SIGNAL(triggered(bool)), this, SLOT(onRun()));
 
     connect(helpAbout, SIGNAL(triggered(bool)), this, SLOT(onAbout()));
     connect(fileExit, SIGNAL(triggered(bool)), this, SLOT(onExit()));
@@ -70,7 +79,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::onOpen()
 {
-    QString filename = QFileDialog::getOpenFileName(); // 打开一个标准文件对话框
+    filename = QFileDialog::getOpenFileName(); // 打开一个标准文件对话框
     // 返回值是用户选择的文件名
     // 函数返回用户选择的路径+文件名
     if (filename.isEmpty()) { // 如果用户没有选择任何文件
@@ -97,7 +106,7 @@ void MainWindow::onOpen()
 
 void MainWindow::onSave()
 {
-    QString filename = QFileDialog::getSaveFileName();
+    filename = QFileDialog::getSaveFileName();
     if (filename.isEmpty()) {
         return;
     }
@@ -139,4 +148,22 @@ void MainWindow::onCut()
 void MainWindow::onSelectAll()
 {
     text1->selectAll();
+}
+
+void MainWindow::onCompile()
+{
+    QString destname = filename;
+    // 将filename中的.c替换为.exe
+    destname = destname.replace(".c", ".exe");
+    QString command = "gcc -o " + destname + " " + filename;
+
+    system(command.toStdString().data());
+}
+
+void MainWindow::onRun()
+{
+    QString destname = filename;
+    destname.replace(".c", ".exe");
+    system(destname.toStdString().data());
+
 }
